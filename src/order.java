@@ -67,10 +67,6 @@ public class order{
 	order(){
 		
 	}
-	order(String file_path){
-		
-	}
-	
 	public void setCapableHeavy() {
 		List<machine> machines = new ArrayList();
 		for(int i=0;i<this.getN();i++) {
@@ -124,7 +120,7 @@ public class order{
 	 * @param anOrder the instance
 	 * @param line numberOfJobs(int)"\\t"NumberOfJobs(int)"\\t"AverageCapableNumberOfOperation(double,may not exist)
 	 */
-	private static void processFirstLine(order anOrder,String line) {
+	private void processFirstLine(order anOrder,String line) {
 		String[] tokens = line.trim().split("\\t");
 		int ptr=0;
 		for(String token:tokens) {
@@ -132,15 +128,15 @@ public class order{
 				continue;
 			}else {
 				if(ptr==0) {
-					int numberOfJobs = Integer.parseInt(token);
+					final int numberOfJobs = Integer.parseInt(token);
 					anOrder.setNumberOfJobs(numberOfJobs);
 					anOrder.setM(numberOfJobs);
 				}else if(ptr==1) {
-					int numberOfMachines = Integer.parseInt(token);
+					final int numberOfMachines = Integer.parseInt(token);
 					anOrder.setNumberOfMachines(numberOfMachines);
 					anOrder.setN(numberOfMachines);
 				}else if(ptr==2) {
-					double averageCapableNumberOfOperation = Double.parseDouble(token);
+					final double averageCapableNumberOfOperation = Double.parseDouble(token);
 					anOrder.setAverageCapableNumberOfOperation(averageCapableNumberOfOperation);
 				}
 				ptr++;
@@ -152,11 +148,11 @@ public class order{
 	 * @param allJobs which include the all Job and Operation and capable machine in this instance.
 	 * @param line 
 	 */
-	private static void processAContentLine(List<Job> allJobs,String line) {
+	private void processAContentLine(List<Job> allJobs,String line) {
 		String jobID = "Job"+(1+allJobs.size());
 		Job temp_Job = new Job(jobID);
 		String[] tokens = line.trim().split(" ");
-		int operationNumberOfThisJob = Integer.parseInt(tokens[0].trim());
+		final int operationNumberOfThisJob = Integer.parseInt(tokens[0].trim());
 		int ptr = 1;
 		for(int i=0;i<operationNumberOfThisJob;i++) {
 			stage temp_stage = new stage("stage"+(i+1));
@@ -187,7 +183,7 @@ public class order{
 	 * @return BufferedReader br
 	 * @throws Exception
 	 */
-	private static BufferedReader newABufferReader(String file_path) throws Exception{
+	private BufferedReader newABufferReader(String file_path) throws Exception{
 		BufferedReader result = null;
 		String pathname = file_path; // 绝对路径或相对路径都可以，这里是绝对路径，写入文件时演示相对路径
 		File filename = new File(pathname); // 要读取以上路径的input。txt文件
@@ -203,7 +199,7 @@ public class order{
 	 * @param allJobs
 	 * @return sum of operation of all jobs
 	 */
-	private static int caluOperationCount(List<Job> allJobs) {
+	private int caluOperationCount(List<Job> allJobs) {
 		int result=0;
 		for(Job Job:allJobs) {
 			int operationNumberOfThisJob = Job.getStages().size();
@@ -219,14 +215,15 @@ public class order{
 	 * @param file_path is the url of instance
 	 * @return the order format of instance 
 	 */
-	public static order reconstrust_function_read_file(String file_path){
-		order result = new order();
+	public order(String file_path){
+		super();
+		order result = this;
 		List<Job> allJobs = new ArrayList();
 		result.setJobs(allJobs);
 		try { // 防止文件建立或读取失败，用catch捕捉错误并打印，也可以throw
 			/* 读入TXT文件 */
 			
-			BufferedReader br = newABufferReader(file_path);
+			final BufferedReader br = newABufferReader(file_path);
 			int ptrOfLine=0;
 			while (true) {
 				ptrOfLine++;
@@ -241,94 +238,8 @@ public class order{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		int operationCount = caluOperationCount(allJobs);
+		final int operationCount = caluOperationCount(allJobs);
 		result.setOperationCount(operationCount);
-		return result;
-	}
-	/**
-	 Returns an List<Job> object that can be used to generate order.
-	 * <p>
-	 * This method always returns an List<Job>. 
-	 *
-	 * @param file_path is the url of instance
-	 * @return all jobs in a ArrayList
-	 */
-	public List<Job> read_file(String file_path){
-		List<Job> table = new ArrayList();
-		int m=-1,n=-1,operationCount=0;
-		double l=-1;
-		int job_count=-1;
-		try { // 防止文件建立或读取失败，用catch捕捉错误并打印，也可以throw
-			 
-			/* 读入TXT文件 */
-			String pathname = file_path; // 绝对路径或相对路径都可以，这里是绝对路径，写入文件时演示相对路径
-			File filename = new File(pathname); // 要读取以上路径的input。txt文件
-			InputStreamReader reader = new InputStreamReader(
-					new FileInputStream(filename)); // 建立一个输入流对象reader
-			BufferedReader br = new BufferedReader(reader); // 建立一个对象，它把文件内容转成计算机能读懂的语言
-			String line = "";
-			
-			
-			while (true) {
-				job_count++;
-				line = br.readLine(); // 一次读入一行数据
-				if(line==null || "".equals(line)) break;
-				if(m==-1) {
-					String[] tokens = line.trim().split("\\t");
-					if(tokens.length==1)
-						tokens = tokens[0].trim().split(" ");
-					int t=0;
-					while("".equals(tokens[t].trim()))
-						t++;
-					m=Integer.parseInt(tokens[t++]);
-					while("".equals(tokens[t].trim()))
-						t++;
-					n=Integer.parseInt(tokens[t++]);
-					while("".equals(tokens[t].trim()))
-						t++;
-					l=Double.parseDouble(tokens[t++].trim());
-				}else {
-					Job temp_Job = new Job("Job"+job_count);
-					String[] tokens = line.trim().split(" ");
-					int stage_counts = Integer.parseInt(tokens[0].trim());
-					operationCount+=stage_counts;
-					int ptr = 1;
-					for(int i=0;i<stage_counts;i++) {
-						stage temp_stage = new stage("stage"+(i+1));
-						while("".equals(tokens[ptr].trim()))
-							ptr++;
-						int machine_count = Integer.parseInt(tokens[ptr++]);
-						for(int j=0;j<machine_count;j++) {
-							capableMachine temp_machine = new capableMachine();
-							while("".equals(tokens[ptr].trim()))
-								ptr++;
-							temp_machine.setMachineId(Integer.parseInt(tokens[ptr]));
-							while("".equals(tokens[ptr].trim()))
-								ptr++;
-							//System.out.println(temp_machine.getMachineId()+"  ptr:"+Integer.parseInt(tokens[ptr]));
-							temp_machine.setMachineName("machine"+Integer.parseInt(tokens[ptr++]));
-							while("".equals(tokens[ptr].trim()))
-								ptr++;
-							temp_machine.setCostTime(Integer.parseInt(tokens[ptr++].trim()));
-							temp_stage.add(temp_machine);
-						}
-						temp_Job.add(temp_stage);
-					}
-					table.add(temp_Job);
-				}
-				
-			}
-			
-				
-		} catch (Exception e) {
-			e.printStackTrace();
-
-				
-		}
-		this.m=m;
-		this.n=n;
-		this.setOperationCount(operationCount);
-		return table;
 	}
 	public String toString() {
 		String output="";
@@ -341,7 +252,7 @@ public class order{
 	}
 	public static void main(String[] args) {
 		String file_path = "Mk02.fjs";
-		order o = reconstrust_function_read_file(file_path);
+		order o = new order(file_path);
 		System.out.print(o.toString());
 	}
 }

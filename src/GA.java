@@ -34,7 +34,7 @@ public class GA {
 		this.PG=PG;
 		this.PL=PL;
 		this.PR=PR;
-		order o = order.reconstrust_function_read_file(file_path);
+		order o = new order(file_path);
 		o.setCapableHeavy();
 		this.order = o;
 	}
